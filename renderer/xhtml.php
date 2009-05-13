@@ -15,6 +15,26 @@ require_once DOKU_INC.'inc/parser/xhtml.php';
  */
 class renderer_plugin_nsexport_xhtml extends Doku_Renderer_xhtml {
 
+    function _relTop(){
+        // relative URLs we need
+        global $ID;
+        $deep = substr_count($ID,':');
+        $ref  = '';
+        for($i=0; $i<$deep; $i++) $ref .= '../';
+        return $ref;
+    }
+
+    function _localMedia($src){
+        // rewrite local media and move to zip
+        if(!preg_match('/^\w+:\/\//',$src)){
+            // FIXME move media into zip here
+
+            $ref = $this->_relTop();
+            $src = $rel.'_media/'.str_replace(':','/',$src);
+        }
+        return $src;
+    }
+
     /**
      * Rewrite all internal links to local html files
      */
@@ -24,10 +44,7 @@ class renderer_plugin_nsexport_xhtml extends Doku_Renderer_xhtml {
         // default name is based on $id as given
         $default = $this->_simpleTitle($id);
 
-        // relative URLs we need
-        $deep = substr_count($ID,':');
-        $ref  = '';
-        for($i=0; $i<$deep; $i++) $ref .= '../';
+        $ref = $this->_relTop();
 
         // now first resolve and clean up the $id
         resolve_pageid(getNS($ID),$id,$exists);
@@ -72,6 +89,138 @@ class renderer_plugin_nsexport_xhtml extends Doku_Renderer_xhtml {
         //output formatted
         $this->doc .= $this->_formatLink($link);
     }
+
+    /**
+     * Renders internal and external media
+     *
+     * @author Andreas Gohr <andi@splitbrain.org>
+     */
+    function _media ($src, $title=NULL, $align=NULL, $width=NULL,
+                      $height=NULL, $cache=NULL, $render = true) {
+        $ret = '';
+        $src = $this->_localMedia($src);
+
+        list($ext,$mime,$dl) = mimetype($src);
+        if(substr($mime,0,5) == 'image'){
+            // first get the $title
+            if (!is_null($title)) {
+                $title  = $this->_xmlEntities($title);
+            }elseif($ext == 'jpg' || $ext == 'jpeg'){
+                //try to use the caption from IPTC/EXIF
+                require_once(DOKU_INC.'inc/JpegMeta.php');
+                $jpeg =& new JpegMeta(mediaFN($src));
+                if($jpeg !== false) $cap = $jpeg->getTitle();
+                if($cap){
+                    $title = $this->_xmlEntities($cap);
+                }
+            }
+            if (!$render) {
+                // if the picture is not supposed to be rendered
+                // return the title of the picture
+                if (!$title) {
+                    // just show the sourcename
+                    $title = $this->_xmlEntities(basename(noNS($src)));
+                }
+                return $title;
+            }
+            //add image tag
+            $ret .= '<img src="'.$src.'"';
+            $ret .= ' class="media'.$align.'"';
+
+            // make left/right alignment for no-CSS view work (feeds)
+            if($align == 'right') $ret .= ' align="right"';
+            if($align == 'left')  $ret .= ' align="left"';
+
+            if ($title) {
+                $ret .= ' title="' . $title . '"';
+                $ret .= ' alt="'   . $title .'"';
+            }else{
+                $ret .= ' alt=""';
+            }
+
+            if ( !is_null($width) )
+                $ret .= ' width="'.$this->_xmlEntities($width).'"';
+
+            if ( !is_null($height) )
+                $ret .= ' height="'.$this->_xmlEntities($height).'"';
+
+            $ret .= ' />';
+
+        }elseif($mime == 'application/x-shockwave-flash'){
+            if (!$render) {
+                // if the flash is not supposed to be rendered
+                // return the title of the flash
+                if (!$title) {
+                    // just show the sourcename
+                    $title = basename(noNS($src));
+                }
+                return $this->_xmlEntities($title);
+            }
+
+            $att = array();
+            $att['class'] = "media$align";
+            if($align == 'right') $att['align'] = 'right';
+            if($align == 'left')  $att['align'] = 'left';
+            $ret .= html_flashobject($src,$width,$height,
+                                     array('quality' => 'high'),
+                                     null,
+                                     $att,
+                                     $this->_xmlEntities($title));
+        }elseif($title){
+            // well at least we have a title to display
+            $ret .= $this->_xmlEntities($title);
+        }else{
+            // just show the sourcename
+            $ret .= $this->_xmlEntities(basename(noNS($src)));
+        }
+
+        return $ret;
+    }
+
+
+
+
+
+
+
+
+
+
+    function internalmedia ($src, $title=NULL, $align=NULL, $width=NULL,
+                            $height=NULL, $cache=NULL, $linking=NULL) {
+        global $ID;
+        list($src,$hash) = explode('#',$src,2);
+        resolve_mediaid(getNS($ID),$src, $exists);
+
+        $lsrc = $this->_localMedia($src);
+        $noLink = false;
+        $render = ($linking == 'linkonly') ? false : true;
+        $link = $this->_getMediaLinkConf($lsrc, $title, $align, $width, $height, $cache, $render);
+        $link['url'] = $lsrc;
+
+        list($ext,$mime,$dl) = mimetype($src);
+        if(substr($mime,0,5) == 'image' && $render){
+        }elseif($mime == 'application/x-shockwave-flash' && $render){
+            // don't link flash movies
+            $noLink = true;
+        }else{
+            // add file icons
+            $class = preg_replace('/[^_\-a-z0-9]+/i','_',$ext);
+            $link['class'] .= ' mediafile mf_'.$class;
+        }
+
+        if($hash) $link['url'] .= '#'.$hash;
+
+        //markup non existing files
+        if (!$exists)
+          $link['class'] .= ' wikilink2';
+
+        //output formatted
+        if ($linking == 'nolink' || $noLink) $this->doc .= $link['name'];
+        else $this->doc .= $this->_formatLink($link);
+
+    }
+
 
 }
 

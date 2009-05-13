@@ -10,4 +10,4 @@ require_once(DOKU_INC.'inc/pluginutils.php');
 
 
 $plugin = plugin_load('admin','nsexport');
-$plugin->_export_html($_POST['export']);
+$plugin->_export_html($_REQUEST['export']);

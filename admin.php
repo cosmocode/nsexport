@@ -113,9 +113,7 @@ class admin_plugin_nsexport extends DokuWiki_Admin_Plugin {
             for($i=0; $i<$deep; $i++) $ref .= '../';
 
             // create the output
-//            $html = p_cached_output(wikiFN($ID,''), 'xhtml');
-            $html = p_wiki_xhtml($ID,'',false);
-            $this->_html_rewrite($html,$ref);
+            $html = p_cached_output(wikiFN($ID,''), 'nsexport_xhtml');
 
             $output  = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"'.DOKU_LF;
             $output .= ' "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">'.DOKU_LF;
@@ -144,63 +142,4 @@ class admin_plugin_nsexport extends DokuWiki_Admin_Plugin {
         header('Content-Disposition: attachment; filename="export.zip"');
         echo $zip->get_file();
     }
-
-    function _html_rewrite(&$html,$ref){
-        $lbase = rtrim(wl('x'),'x'); // get current base of all internal links
-        $lbase = preg_quote($lbase,'/');
-
-        $dbase = substr(ml('x.jpg','',false),0,-5); // get current base of all media detail links
-        $dbase = preg_quote($dbase,'/');
-
-die($dbase);
-
-        $mbase = rtrim(ml('x'),'x'); // get current base of all mediafiles
-        $mbase = preg_quote($mbase,'/');
-
-
-        // replace all internal links
-        $html = preg_replace_callback(
-                    '/ href="'.$lbase.'([^"]+)"/',
-                    create_function('$matches',
-                       'return admin_plugin_nsexport::_html_cb_link($matches,\''.$ref.'\');'
-                    ),
-                    $html);
-
-        $html = preg_replace_callback(
-                    '/ href="'.$dbase.'([^"]+)"/',
-                    create_function('$matches',
-                       'return admin_plugin_nsexport::_html_cb_dlink($matches,\''.$ref.'\');'
-                    ),
-                    $html);
-
-
-        // replace all media sources
-        $html = preg_replace_callback(
-                    '/ src="'.$mbase.'([^"]+)"/',
-                    create_function('$matches',
-                       'return admin_plugin_nsexport::_html_cb_media($matches,\''.$ref.'\');'
-                    ),
-                    $html);
-
-
-
-    }
-
-    function _html_cb_link($matches,$ref){
-        $id = str_replace(':','/',$matches[1]).'.html';
-        return ' href="'.$ref.$id.'"';
-    }
-
-    function _html_cb_dlink($matches,$ref){
-        $id = str_replace(':','/',$matches[1]);
-        return ' href="'.$ref.'_media/'.$id.'"';
-    }
-
-    function _html_cb_media($matches,$ref){
-        //FIXME handle external media
-
-        $id = str_replace(':','/',$matches[1]);
-        return ' src="'.$ref.'_media/'.$id.'"';
-    }
-
 }
