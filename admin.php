@@ -90,6 +90,7 @@ class admin_plugin_nsexport extends DokuWiki_Admin_Plugin {
         require_once(DOKU_INC.'inc/ZipLib.class.php');
         require_once(DOKU_INC.'inc/HTTPClient.php');
 
+        $media = array();
         $zip   = new ZipLib();
 
         // add CSS
@@ -135,6 +136,17 @@ class admin_plugin_nsexport extends DokuWiki_Admin_Plugin {
             $output .= '</html>'.DOKU_LF;
 
             $zip->add_File($output,str_replace(':','/',$ID).'.html');
+
+            $media = array_merge($media,(array) p_get_metadata($ID,'plugin_nsexport'));
+        }
+
+        // now embed the media
+        $media = array_unique($media);
+        foreach($media as $id){
+            if( auth_quickaclcheck($id) < AUTH_READ ) continue;
+            @set_time_limit(30);
+
+            $zip->add_File(io_readFile(mediaFN($id),false),'_media/'.str_replace(':','/',$id));
         }
 
         // send to browser

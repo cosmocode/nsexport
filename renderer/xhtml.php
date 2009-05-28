@@ -15,6 +15,8 @@ require_once DOKU_INC.'inc/parser/xhtml.php';
  */
 class renderer_plugin_nsexport_xhtml extends Doku_Renderer_xhtml {
 
+    var $_media = array();
+
     function _relTop(){
         // relative URLs we need
         global $ID;
@@ -27,13 +29,25 @@ class renderer_plugin_nsexport_xhtml extends Doku_Renderer_xhtml {
     function _localMedia($src){
         // rewrite local media and move to zip
         if(!preg_match('/^\w+:\/\//',$src)){
-            // FIXME move media into zip here
+            $this->_media[] = $src;
 
             $ref = $this->_relTop();
             $src = $rel.'_media/'.str_replace(':','/',$src);
         }
         return $src;
     }
+
+    /**
+     * Store all referenced media in metadata
+     */
+    function document_end(){
+        global $ID;
+        parent::document_end();
+
+        $this->_media = array_unique($this->_media);
+        p_set_metadata($ID,array('plugin_nsexport'=>$this->_media));
+    }
+
 
     /**
      * Rewrite all internal links to local html files
@@ -177,15 +191,6 @@ class renderer_plugin_nsexport_xhtml extends Doku_Renderer_xhtml {
         return $ret;
     }
 
-
-
-
-
-
-
-
-
-
     function internalmedia ($src, $title=NULL, $align=NULL, $width=NULL,
                             $height=NULL, $cache=NULL, $linking=NULL) {
         global $ID;
@@ -195,7 +200,7 @@ class renderer_plugin_nsexport_xhtml extends Doku_Renderer_xhtml {
         $lsrc = $this->_localMedia($src);
         $noLink = false;
         $render = ($linking == 'linkonly') ? false : true;
-        $link = $this->_getMediaLinkConf($lsrc, $title, $align, $width, $height, $cache, $render);
+        $link = $this->_getMediaLinkConf($src, $title, $align, $width, $height, $cache, $render);
         $link['url'] = $lsrc;
 
         list($ext,$mime,$dl) = mimetype($src);
