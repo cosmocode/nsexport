@@ -49,10 +49,18 @@ class action_plugin_nsexport extends DokuWiki_Action_Plugin {
     function _listPages(){
         global $ID;
 
+        echo $this->locale_xhtml('intro');
+
         $pages = array();
         $base  = dirname(wikiFN($ID));
         search($pages,$base,'search_allpages',array());
         echo '<form action="'.DOKU_BASE.'lib/plugins/nsexport/export.php" method="post">';
+        echo '<p><input type="submit" class="button" value="'.$this->getLang('btn_export').'" />';
+        echo $this->getLang('inns');
+        $ns = getNS($ID);
+        if(!$ns) $ns = '*';
+        echo '<b>'.$ns.'</b>';
+        echo '</p>';
         echo '<ul>';
         $num = 0;
         foreach($pages as $page){
@@ -63,7 +71,6 @@ class action_plugin_nsexport extends DokuWiki_Action_Plugin {
                       hsc($page['id']).'</label></div></li>';
         }
         echo '</ul>';
-        echo '<input type="submit" class="button" />';
         echo '</form>';
     }
 

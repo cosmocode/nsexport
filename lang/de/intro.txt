@@ -1,0 +1,6 @@
+====== Namensraumexport ======
+
+Dieses Werkzeug exportiert alle Seiten im momentanen Namensraum (und darunter) als einfache HTML-Dateien. Mediadateien wie Bilder oder Dokumente die in den eportierten Seiten referenziert werden, werden ebenfalls exportiert. Die betroffenen Dateien werden unten aufgeführt, durch deaktivieren der entsprechenden Checkboxen können einzelne Seiten vom Export ausgeschlossen werden.
+
+Der Export erzeugt eine ZIP-Datei. Abhängig von der Menge der zu exportierenden Daten kann die Generierung eine Weile dauern. Bitte haben sie etwas Geduld nach dem Klick auf den Export-Button.
+
