@@ -1,60 +1,46 @@
 <?php
-/**
- *
- * @license    GPL 2 (http://www.gnu.org/licenses/gpl.html)
- */
-// must be run within Dokuwiki
 if(!defined('DOKU_INC')) die();
-
 if(!defined('DOKU_PLUGIN')) define('DOKU_PLUGIN',DOKU_INC.'lib/plugins/');
-require_once(DOKU_PLUGIN.'admin.php');
+require_once(DOKU_PLUGIN.'action.php');
 
 require_once(DOKU_INC.'inc/search.php');
 require_once(DOKU_INC.'inc/html.php');
-/**
- * All DokuWiki plugins to extend the admin function
- * need to inherit from this class
- */
-class admin_plugin_nsexport extends DokuWiki_Admin_Plugin {
 
-    /**
-     * return some info
-     */
+class action_plugin_nsexport extends DokuWiki_Action_Plugin {
+
+    var $run = false;
     function getInfo(){
         return confToHash(dirname(__FILE__).'/info.txt');
     }
 
-
-    /**
-     * return sort order for position in admin menu
-     */
-    function getMenuSort() {
-        return 99;
+    function register(&$controller) {
+        $controller->register_hook('TPL_CONTENT_DISPLAY','BEFORE',  $this, 'nsexport');
+        $controller->register_hook('ACTION_ACT_PREPROCESS','BEFORE',  $this, 'act');
     }
 
-    /**
-     * handle user request
-     *
-     * Initializes internal vars and handles modifications
-     *
-     * @author Andreas Gohr <andi@splitbrain.org>
-     */
-    function handle() {
+    function nsexport(&$event, $param) {
+        if (!$this->run) return;
+
+        // stops default action handler
+        $event->stopPropagation();
+        $event->preventDefault();
+
+        $this->show();
+
+                return falsde;
     }
 
-    /**
-     * ACL Output function
-     *
-     * print a table with all significant permissions for the
-     * current id
-     *
-     * @author  Frank Schubert <frank@schokilade.de>
-     * @author  Andreas Gohr <andi@splitbrain.org>
-     */
-    function html() {
+    function act(&$event , $param) {
+        if ($event->data != 'nsexport') return false;
+        $event->stopPropagation();
+        $event->preventDefault();
+        $this->run = true;
+        return true;
+    }
+
+    function show() {
         $this->_listPages();
     }
-
 
     /**
      * Create a list of pages about to be exported within a form

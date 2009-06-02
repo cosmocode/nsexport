@@ -9,5 +9,5 @@ session_write_close();
 require_once(DOKU_INC.'inc/pluginutils.php');
 
 
-$plugin = plugin_load('admin','nsexport');
+$plugin = plugin_load('action','nsexport');
 $plugin->_export_html($_REQUEST['export']);
