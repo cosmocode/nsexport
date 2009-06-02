@@ -63,12 +63,14 @@ class action_plugin_nsexport extends DokuWiki_Action_Plugin {
         echo '</p>';
         echo '<ul>';
         $num = 0;
+        $ns = getNS($ID);
         foreach($pages as $page){
+            $id = cleanID("$ns:".$page['id']);
             $num++;
             echo '<li><div class="li"><input type="checkbox" name="export[]"
-                      id="page__'.$num.'" value="'.hsc($page['id']).'"
+                      id="page__'.$num.'" value="'.hsc($id).'"
                       checked="checked" class="edit" />&nbsp;<label for="page__'.$num.'">'.
-                      hsc($page['id']).'</label></div></li>';
+                      hsc($id).'</label></div></li>';
         }
         echo '</ul>';
         echo '</form>';
