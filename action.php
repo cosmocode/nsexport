@@ -96,6 +96,8 @@ class action_plugin_nsexport extends DokuWiki_Action_Plugin {
         $zip->add_File($css,'screen.css');
         $css   = $http->get(DOKU_URL.'lib/exe/css.php?s=print&t='.$conf['template']);
         $zip->add_File($css,'print.css');
+        $css   = io_readFile(dirname(__FILE__).'/export.css');
+        $zip->add_File($css,'export.css');
 
         unset($html);
 
@@ -121,6 +123,7 @@ class action_plugin_nsexport extends DokuWiki_Action_Plugin {
             $output .= '  <link rel="stylesheet" media="all" type="text/css" href="'.$ref.'all.css" />'.DOKU_LF;
             $output .= '  <link rel="stylesheet" media="screen" type="text/css" href="'.$ref.'screen.css" />'.DOKU_LF;
             $output .= '  <link rel="stylesheet" media="print" type="text/css" href="'.$ref.'print.css" />'.DOKU_LF;
+            $output .= '  <link rel="stylesheet" media="all" type="text/css" href="'.$ref.'export.css" />'.DOKU_LF;
             $output .= '</head>'.DOKU_LF;
             $output .= '<body>'.DOKU_LF;
             $output .= '<div class="dokuwiki export">' . DOKU_LF;
