@@ -102,7 +102,7 @@ class action_plugin_nsexport extends DokuWiki_Action_Plugin {
         unset($html);
 
         foreach($pages as $ID){
-            if( auth_quickaclcheck($item['id']) < AUTH_READ ) continue;
+            if( auth_quickaclcheck($ID) < AUTH_READ ) continue;
             @set_time_limit(30);
 
             // create relative path to top directory
@@ -139,6 +139,7 @@ class action_plugin_nsexport extends DokuWiki_Action_Plugin {
         }
 
         // now embed the media
+        $media = array_map('cleanID',$media);
         $media = array_unique($media);
         foreach($media as $id){
             if( auth_quickaclcheck($id) < AUTH_READ ) continue;

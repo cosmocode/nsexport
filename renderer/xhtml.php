@@ -32,7 +32,7 @@ class renderer_plugin_nsexport_xhtml extends Doku_Renderer_xhtml {
             $this->_media[] = $src;
 
             $ref = $this->_relTop();
-            $src = $rel.'_media/'.str_replace(':','/',$src);
+            $src = $ref.'_media/'.str_replace(':','/',$src);
         }
         return $src;
     }
