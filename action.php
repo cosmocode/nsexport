@@ -148,9 +148,24 @@ class action_plugin_nsexport extends DokuWiki_Action_Plugin {
             $zip->add_File(io_readFile(mediaFN($id),false),'_media/'.str_replace(':','/',$id));
         }
 
+        // add the merge directory contents
+        $this->recursive_add($zip,dirname(__FILE__).'/merge');
+
         // send to browser
         header('Content-Type: application/zip');
         header('Content-Disposition: attachment; filename="export.zip"');
         echo $zip->get_file();
+    }
+
+    function recursive_add(&$zip,$base,$dir=''){
+        $fh = @opendir("$base/$dir");
+        if(!$fh) return;
+        while(false !== ($file = readdir($fh))) {
+            @set_time_limit(30);
+            if($file == '..' || $file[0] == '.') continue;
+            if(is_dir("$base/$dir/$file")) $this->recursive_add($zip,$base,"$dir/$file");
+            $zip->add_File(io_readFile("$base/$dir/$file",false),"$dir/$file");
+        }
+        closedir($fh);
     }
 }
