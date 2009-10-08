@@ -27,7 +27,7 @@ class action_plugin_nsexport extends DokuWiki_Action_Plugin {
 
         $this->show();
 
-                return falsde;
+        return false;
     }
 
     function act(&$event , $param) {
@@ -49,12 +49,17 @@ class action_plugin_nsexport extends DokuWiki_Action_Plugin {
     function _listPages(){
         global $ID;
 
-        echo $this->locale_xhtml('intro');
+        if($this->getConf('autoexport')||true){
+            echo $this->locale_xhtml('autointro');
+            $id = 'id="nsexport__auto"';
+        }else{
+            echo $this->locale_xhtml('intro');
+        }
 
         $pages = array();
         $base  = dirname(wikiFN($ID));
         search($pages,$base,'search_allpages',array());
-        echo '<form action="'.DOKU_BASE.'lib/plugins/nsexport/export.php" method="post">';
+        echo '<form action="'.DOKU_BASE.'lib/plugins/nsexport/export.php" method="post" '.$id.'>';
         echo '<p><input type="submit" class="button" value="'.$this->getLang('btn_export').'" />';
         echo $this->getLang('inns');
         $ns = getNS($ID);
@@ -86,18 +91,23 @@ class action_plugin_nsexport extends DokuWiki_Action_Plugin {
         require_once(DOKU_INC.'inc/HTTPClient.php');
 
         $media = array();
-        $zip   = new ZipLib();
+        $zip   = new ZipArchive();
+        $filename = $conf['tmpdir'].'/offline-'.time().rand(0,99999).'.zip';
+
+        if ($zip->open($filename, ZIPARCHIVE::CREATE)!==true) {
+            die("cannot open <$filename>\n");
+        }
 
         // add CSS
         $http  = new DokuHTTPClient();
         $css   = $http->get(DOKU_URL.'lib/exe/css.php?s=all&t='.$conf['template']);
-        $zip->add_File($css,'all.css');
+        $zip->addFromString('all.css',$css);
         $css   = $http->get(DOKU_URL.'lib/exe/css.php?t='.$conf['template']);
-        $zip->add_File($css,'screen.css');
+        $zip->addFromString('screen.css',$css);
         $css   = $http->get(DOKU_URL.'lib/exe/css.php?s=print&t='.$conf['template']);
-        $zip->add_File($css,'print.css');
+        $zip->addFromString('print.css',$css);
         $css   = io_readFile(dirname(__FILE__).'/export.css');
-        $zip->add_File($css,'export.css');
+        $zip->addFromString('export.css',$css);
 
         unset($html);
 
@@ -133,8 +143,7 @@ class action_plugin_nsexport extends DokuWiki_Action_Plugin {
             $output .= '</body>'.DOKU_LF;
             $output .= '</html>'.DOKU_LF;
 
-            $zip->add_File($output,str_replace(':','/',$ID).'.html');
-
+            $zip->addFromString(str_replace(':','/',$ID).'.html',$output);
             $media = array_merge($media,(array) p_get_metadata($ID,'plugin_nsexport'));
         }
 
@@ -144,17 +153,26 @@ class action_plugin_nsexport extends DokuWiki_Action_Plugin {
         foreach($media as $id){
             if( auth_quickaclcheck($id) < AUTH_READ ) continue;
             @set_time_limit(30);
-
-            $zip->add_File(io_readFile(mediaFN($id),false),'_media/'.str_replace(':','/',$id));
+            $zip->addFromString('_media/'.str_replace(':','/',$id),io_readFile(mediaFN($id),false));
         }
+
 
         // add the merge directory contents
         $this->recursive_add($zip,dirname(__FILE__).'/merge');
 
+        if(!$zip->close()) die("failed to save zip file. maybe out of memory?");
+
+
         // send to browser
         header('Content-Type: application/zip');
         header('Content-Disposition: attachment; filename="export.zip"');
-        echo $zip->get_file();
+        $fh = fopen($filename,'rb');
+        if(!$fh) die('file vanished');
+        while (!feof($fh)) {
+            echo fread($fh, 8192);
+        }
+        fclose($fh);
+        unlink($filename);
     }
 
     function recursive_add(&$zip,$base,$dir=''){
@@ -163,8 +181,11 @@ class action_plugin_nsexport extends DokuWiki_Action_Plugin {
         while(false !== ($file = readdir($fh))) {
             @set_time_limit(30);
             if($file == '..' || $file[0] == '.') continue;
-            if(is_dir("$base/$dir/$file")) $this->recursive_add($zip,$base,"$dir/$file");
-            $zip->add_File(io_readFile("$base/$dir/$file",false),"$dir/$file");
+            if(is_dir("$base/$dir/$file")){
+                $this->recursive_add($zip,$base,"$dir/$file");
+            }else{
+                $zip->addFile("$base/$dir/$file",ltrim("$dir/$file",'/'));
+            }
         }
         closedir($fh);
     }
