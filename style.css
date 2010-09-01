@@ -2,3 +2,7 @@ div.dokuwiki a.nsexport {
     padding: 1px 0 1px 18px;
     background: transparent url(zip.png) no-repeat scroll 0 1px;
 }
+
+#nsexport__auto {
+    display:none;
+}
