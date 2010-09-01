@@ -122,7 +122,7 @@ class renderer_plugin_nsexport_xhtml extends Doku_Renderer_xhtml {
             }elseif($ext == 'jpg' || $ext == 'jpeg'){
                 //try to use the caption from IPTC/EXIF
                 require_once(DOKU_INC.'inc/JpegMeta.php');
-                $jpeg =& new JpegMeta(mediaFN($src));
+                $jpeg = new JpegMeta(mediaFN($src));
                 if($jpeg !== false) $cap = $jpeg->getTitle();
                 if($cap){
                     $title = $this->_xmlEntities($cap);

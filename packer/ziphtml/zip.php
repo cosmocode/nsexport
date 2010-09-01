@@ -95,7 +95,7 @@ class nsexport_zip {
 
         // check if the 7ip executable is availible
         // FIXME
-        $packer = $this->getConf('zip');
+        $packer = $this->getConf('packer____ziphtml____zip');
         if (!file_exists($packer) || !is_file($packer))
         {
             return;
@@ -180,6 +180,7 @@ class nsexport_zip {
      * Do the action
      */
     function _export_html($pages){
+        global $conf;
         @ignore_user_abort(true);
         $filename = $conf['tmpdir'].'/offline-'.time().rand(0,99999).'.zip';
         $this->zip = $filename;
@@ -197,8 +198,8 @@ class nsexport_zip {
         @set_time_limit(0);
 
         chdir($efn);
-        $zip = $this->getConf('zip');
-        $comp = $this->getConf('compress');
+        $zip = $this->getConf('packer____ziphtml____zip');
+        $comp = $this->getConf('packer____ziphtml____compress');
         $cmd = "$zip -q -$comp -r - .";
         system($cmd);
 

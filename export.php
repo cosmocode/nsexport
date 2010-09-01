@@ -10,5 +10,6 @@ session_write_close();
 
 require_once(DOKU_INC.'inc/pluginutils.php');
 
-$plugin = plugin_load('action','nsexport_export');
-$plugin->_export_html();
+$plugin = plugin_load('action','nsexport_ajax');
+$packer = $plugin->getPacker();
+if (!is_null($packer)) $packer->get_pack($_REQUEST['key']);

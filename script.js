@@ -16,7 +16,7 @@ function nsexport_check(key) {
 
         if(data === '1') {
             // download is ready - get it
-            window.location = DOKU_BASE+'lib/plugins/nsexport/export.php?zip=' + key;
+            window.location = DOKU_BASE+'lib/plugins/nsexport/export.php?key=' + key;
             return false;
         }
 
@@ -77,4 +77,3 @@ addInitEvent(function(){
         });
     }
 });
-
