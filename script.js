@@ -67,7 +67,9 @@ addInitEvent(function(){
 
             // add export pages
             for (var i = 0; i < form['export[]'].length; i++) {
-                param += '&export[]=' + form['export[]'][i].value;
+                if (form['export[]'][i].checked) {
+                    param += '&export[]=' + form['export[]'][i].value;
+                }
             }
 
             ajax.runAJAX(param);
