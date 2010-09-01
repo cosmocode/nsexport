@@ -15,7 +15,6 @@ require_once(DOKU_INC.'inc/template.php');
 class action_plugin_nsexport_export extends DokuWiki_Action_Plugin {
 
     var $run = false;
-    var $tmp;
 
     function register(&$controller) {
         $controller->register_hook('TPL_ACT_UNKNOWN','BEFORE',  $this, 'nsexport');
@@ -35,8 +34,8 @@ class action_plugin_nsexport_export extends DokuWiki_Action_Plugin {
         $event->preventDefault();
 
         if ($this->getConf('autoexport')){
-            echo $this->locale_xhtml('autointro');
             $id = 'id="nsexport__auto"';
+            echo $this->locale_xhtml('autointro');
             echo '<p>' .$this->getLang('autointronext'). '</p>';
             echo '<p>' .$this->getLang('pleasewait'). '<img src="'.DOKU_BASE.'lib/images/throbber.gif" /></p>';
         }else{
@@ -56,21 +55,21 @@ class action_plugin_nsexport_export extends DokuWiki_Action_Plugin {
         $pages = array();
         $base  = dirname(wikiFN($ID));
         search($pages,$base,'search_allpages',array());
+        $pages = array_reverse($pages);
         echo '<form action="'.DOKU_BASE.'lib/plugins/nsexport/export.php" method="post" '.$id.'>';
         echo '<p><input type="submit" id="do__export" class="button" value="'.$this->getLang('btn_export').'" />';
         echo $this->getLang('inns');
         $ns = getNS($ID);
         if(!$ns) $ns = '*';
-        echo '<b>'.$ns.'</b>';
+        echo '<strong>'.$ns.'</strong>';
         echo '</p>';
         echo '<ul>';
         $num = 0;
         $ns = getNS($ID);
         foreach($pages as $page){
-            $id = cleanID("$ns:".$page['id']);
-            $num++;
+            $id = cleanID($ns . ':' .$page['id']);
             echo '<li><div class="li"><input type="checkbox" name="export[]" '
-               . 'id="page__'.$num.'" value="'.hsc($id).'" '
+               . 'id="page__'.++$num.'" value="'.hsc($id).'" '
                . 'checked="checked" class="edit" />&nbsp;<label for="page__'.$num.'">'
                .  hsc($id) . '</label></div></li>';
         }
