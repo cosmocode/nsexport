@@ -1,40 +1,45 @@
-
 /**
  * check if the dl is ready
  *
  * @param key file key
  */
-function nsexport_check(key) {
-    // build request
-    var ajax = new sack(DOKU_BASE+'lib/exe/ajax.php');
-    var param = 'call=nsexport_check&key=' + key;
-    ajax.AjaxFailedAlert = '';
-    ajax.encodeURIString = false;
-
-    ajax.onCompletion = function(){
-        var data = this.response;
-
-        if(data === '1') {
-            // download is ready - get it
-            var throb = $('plugin_nsexport__throbber');
-            throb.parentNode.replaceChild(document.createTextNode(LANG.plugins.nsexport.done), throb);
-            window.location = DOKU_BASE+'lib/plugins/nsexport/export.php?key=' + key;
-            return false;
-        }
-
-        // download not ready - wait
-        return false;
-    };
-    ajax.runAJAX(param);
-}
-
-
 addInitEvent(function(){
     var frm = getElementsByClass('plugin_nsexport__form', document, 'form');
     if (frm.length === 0) return;
     frm = frm[0];
 
     var btn = $('do__export');
+
+    var interval_id = null;
+    var interval = 500;
+
+    window.nsexport_check = function (key) {
+        // build request
+        var ajax = new sack(DOKU_BASE+'lib/exe/ajax.php');
+        var param = 'call=nsexport_check&key=' + key;
+        ajax.AjaxFailedAlert = '';
+        ajax.encodeURIString = false;
+
+        ajax.onCompletion = function(){
+            var data = this.response;
+            clearInterval(interval_id);
+
+            if(data === '1') {
+                // download is ready - get it
+                var throb = $('plugin_nsexport__throbber');
+                throb.parentNode.replaceChild(document.createTextNode(LANG.plugins.nsexport.done), throb);
+                window.location = DOKU_BASE+'lib/plugins/nsexport/export.php?key=' + key;
+                return false;
+            }
+
+            if (interval < 10000) interval += 1000;
+            interval_id = setInterval("nsexport_check('" + data + "')", interval);
+
+            // download not ready - wait
+            return false;
+        };
+        ajax.runAJAX(param);
+    }
 
     // prepare ajax
     var ajax = new sack(DOKU_BASE+'lib/exe/ajax.php');
@@ -49,7 +54,7 @@ addInitEvent(function(){
             return;
         }
         // start waiting for dl
-        setInterval("nsexport_check('" + data + "')", 10000);
+        interval_id = setInterval("nsexport_check('" + data + "')", interval);
         return false;
     };
 
