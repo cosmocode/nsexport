@@ -1,9 +1,3 @@
 ====== Namespace Export ======
 
-This tool exports all pages in the current language to plain HTML files. Mediafiles like images or documents used in the exported pages will be exported as well.
-
-After the export you can extract the zip file by right clicking on the file an choose -> "extract all". Then just follow the instructions of the wizard.
-
-Currently we create your personal exported version. It can take approximately 5 minutes.
-
-When it's done a download dialog like below showes up.
+This tool exports all pages in the current namespace (and below). Mediafiles like images or documents used in the exported pages will be exported as well. Depending on the amount of exported data, the generation can take a while, please be patient.

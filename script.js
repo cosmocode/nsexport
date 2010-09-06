@@ -28,9 +28,11 @@ function nsexport_check(key) {
 
 
 addInitEvent(function(){
+    var frm = getElementsByClass('plugin_nsexport__form', document, 'form');
+    if (frm.length === 0) return;
+    frm = frm[0];
+
     var btn = $('do__export');
-    var frm = $('nsexport__auto');
-    if (!btn && !frm) return;
 
     // prepare ajax
     var ajax = new sack(DOKU_BASE+'lib/exe/ajax.php');
@@ -49,101 +51,99 @@ addInitEvent(function(){
         return false;
     };
 
-    if (frm !== null) {
+    function start_export() {
+        var msg = document.createElement('div');
+        msg.className = 'level1';
+        msg.innerHTML = '<p>' + LANG.plugins.nsexport.loading
+        + '<img src="' + DOKU_BASE + 'lib/images/throbber.gif" alt="…" /></p>';
+
+        frm.parentNode.appendChild(msg);
+
         // add export pages
         for (var i = 0; i < frm['export[]'].length; i++) {
-            param += '&export[]=' + frm['export[]'][i].value;
+            if (frm['export[]'][i].checked) {
+                param += '&export[]=' + frm['export[]'][i].value;
+            }
         }
+
         ajax.runAJAX(param);
-    } else if (btn !== null) {
-        addEvent(btn, 'click', function(e){
-            var form = btn.parentNode.parentNode;
-            btn.parentNode.parentNode.style.display = 'none';
+    }
 
-            var msg = document.createElement('div');
-            msg.innerHTML = LANG.plugins.nsexport.loading
-                + '<img src="' + DOKU_BASE + 'lib/images/throbber.gif" alt="..." />';
+    if (frm.className.match(/\bplugin_nsexport__started\b/)) {
+        // Autostart
+        start_export();
+        return;
+    }
 
-            btn.parentNode.parentNode.parentNode.appendChild(msg);
+    addEvent(btn, 'click', function(e){
+        frm.className = 'plugin_nsexport__started';
 
-            // add export pages
-            for (var i = 0; i < form['export[]'].length; i++) {
-                if (form['export[]'][i].checked) {
-                    param += '&export[]=' + form['export[]'][i].value;
-                }
+        start_export();
+
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
+    });
+
+    function pagePosY(obj) {
+        var c_val = 0;
+        var c_elem = obj;
+        do {
+            c_val += c_elem.offsetTop;
+            c_elem = c_elem.offsetParent;
+        } while (c_elem);
+        return c_val;
+    }
+
+    function getListItem(target, items) {
+        for (var i = 0 ; i < items.length; ++i) {
+            var startelem = items[i];
+            var c_val = pagePosY(items[i]);
+            if (target >= c_val && c_val >= target - startelem.offsetHeight) {
+                return i;
             }
-
-            ajax.runAJAX(param);
-            e.preventDefault();
-            e.stopPropagation();
-            return false;
-        });
-
-        frm = getElementsByClass('plugin_nsexport__form', document, 'form')[0];
-        function getItems() {
-            return frm.getElementsByTagName('li');
         }
+        return -1;
+    }
 
-        function pagePosY(obj) {
-            var c_val = 0;
-            var c_elem = obj;
-            do {
-                c_val += c_elem.offsetTop;
-                c_elem = c_elem.offsetParent;
-            } while (c_elem);
-            return c_val;
-        }
+    function NSExportDrag() {
+        this.start = function (e) {
+            document.body.style.cursor = 'move';
+            return drag.start.call(this, e);
+        };
 
-        function getListItem(target, items) {
-            for (var i = 0 ; i < items.length; ++i) {
-                var startelem = items[i];
-                var c_val = pagePosY(items[i]);
-                if (target >= c_val && c_val >= target - startelem.offsetHeight) {
-                    return i;
-                }
-            }
-            return -1;
-        }
-
-        function NSExportDrag() {
-            this.start = function (e) {
-                document.body.style.cursor = 'move';
-                return drag.start.call(this, e);
-            };
-
-            this.drag = function (e) {
-                var items = getItems();
-                var target = getListItem(e.pageY, items);
-                if (target === -1) {
-                    return false;
-                }
-                for (var mypos = 0 ; items[mypos] !== this.obj &&
-                                     mypos < items.length ; ++mypos);
-                if (target === mypos || mypos === items.length) {
-                    return false;
-                } else if (target > mypos) {
-                    ++target;
-                }
-                this.obj.parentNode.insertBefore(this.obj,
-                                                 items[target] || null);
+        this.drag = function (e) {
+            var items = frm.getElementsByTagName('li');
+            var target = getListItem(e.pageY, items);
+            if (target === -1) {
                 return false;
-            };
+            }
+            for (var mypos = 0 ; items[mypos] !== this.obj &&
+                                 mypos < items.length ; ++mypos);
+            if (target === mypos || mypos === items.length) {
+                return false;
+            } else if (target > mypos) {
+                ++target;
+            }
+            this.obj.parentNode.insertBefore(this.obj,
+                                             items[target] || null);
+            return false;
+        };
 
-            this.stop = function () {
-                document.body.style.cursor = '';
-                // Prevent unchecking of item
-                addEvent(this.obj.firstChild.firstChild,'click', function (e) {
-                    removeEvent(this, 'click', arguments.callee);
-                    return false;
-                });
-                return drag.stop.call(this);
-            };
-        }
-        NSExportDrag.prototype = drag;
+        this.stop = function () {
+            document.body.style.cursor = '';
+            // Prevent unchecking of item
+            addEvent(this.obj.firstChild.firstChild,'click', function (e) {
+                removeEvent(this, 'click', arguments.callee);
+                return false;
+            });
+            return drag.stop.call(this);
+        };
+    }
+    NSExportDrag.prototype = drag;
 
-        var items = getItems();
-        for (var i = 0 ; i < items.length ; ++i) {
-            (new NSExportDrag()).attach(items[i], items[i].getElementsByTagName('label')[0]);
-        }
+    var items = frm.getElementsByTagName('li');
+    for (var i = 0 ; i < items.length ; ++i) {
+        (new NSExportDrag()).attach(items[i], items[i].getElementsByTagName('label')[0]);
     }
 });

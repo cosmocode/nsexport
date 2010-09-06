@@ -28,6 +28,6 @@ form.plugin_nsexport__form li div.li input {
     vertical-align: middle;
 }
 
-#nsexport__auto {
+div.dokuwiki form.plugin_nsexport__started {
     display:none;
 }

@@ -1,5 +1,3 @@
 ====== Namespace Export ======
 
-This tool exports all pages in the current namespace (and below) to plain HTML files. Mediafiles like images or documents used in the exported pages will be exported as well. Affected pages are listed below, disable the checkbox to exclude a page from being exported.
-
-The export creates a zip file. Depending on the amount of exported data, the generation can take a while, please be patient after clicking the button.
+This tool exports all pages in the current namespace (and below). Mediafiles like images or documents used in the exported pages will be exported as well. Affected pages are listed below, disable the checkbox to exclude a page from being exported. Depending on the amount of exported data, the generation can take a while, please be patient after clicking the button.
