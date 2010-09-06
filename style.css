@@ -3,6 +3,36 @@ div.dokuwiki a.nsexport {
     background: transparent url(zip.png) no-repeat scroll 0 1px;
 }
 
+form.plugin_nsexport__form li {
+    padding: 3px 0;
+}
+
+form.plugin_nsexport__form .ondrag {
+    opacity: 1;
+}
+
+form.plugin_nsexport__form li.ondrag label {
+    color: __text_other__;
+}
+
+form.plugin_nsexport__form li div.li {
+    display: inline;
+    border-radius: 4px;
+    -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;
+    border: 1px solid __text_other__;
+    background: __background_neu__;
+    padding: 2px 4px;
+}
+
+form.plugin_nsexport__form li div.li label {
+    cursor: move;
+}
+
+form.plugin_nsexport__form li div.li input {
+    vertical-align: middle;
+}
+
 #nsexport__auto {
     display:none;
 }
