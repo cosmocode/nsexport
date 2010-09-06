@@ -16,6 +16,8 @@ function nsexport_check(key) {
 
         if(data === '1') {
             // download is ready - get it
+            var throb = $('plugin_nsexport__throbber');
+            throb.parentNode.replaceChild(document.createTextNode(LANG.plugins.nsexport.done), throb);
             window.location = DOKU_BASE+'lib/plugins/nsexport/export.php?key=' + key;
             return false;
         }
@@ -55,7 +57,7 @@ addInitEvent(function(){
         var msg = document.createElement('div');
         msg.className = 'level1';
         msg.innerHTML = '<p>' + LANG.plugins.nsexport.loading
-        + '<img src="' + DOKU_BASE + 'lib/images/throbber.gif" alt="…" /></p>';
+        + '<img id="plugin_nsexport__throbber" src="' + DOKU_BASE + 'lib/images/throbber.gif" alt="…" /></p>';
 
         frm.parentNode.appendChild(msg);
 
