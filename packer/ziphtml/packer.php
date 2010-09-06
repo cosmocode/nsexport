@@ -2,32 +2,27 @@
 require_once DOKU_PLUGIN.'nsexport/packer/ziphtml/compressor.php';
 require_once DOKU_PLUGIN.'nsexport/packer/ziphtml/compress/ziplib.php';
 require_once DOKU_PLUGIN.'nsexport/packer/ziphtml/renderer.php';
+require_once DOKU_PLUGIN.'nsexport/packer/packer.php';
 
-class plugin_nsexport_packer_ziphtml extends DokuWiki_Plugin {
+class plugin_nsexport_packer_ziphtml extends plugin_nsexport_packer {
+    var $ext = 'zip';
 
-    function start_packing($pages) {
+    function init_packing($pages) {
         global $conf;
-        global $lang;
-        // check if the zip executable is available
-        $packer = $conf['plugin']['nsexport']['packer']['ziphtml']['zip'];
+        // early check if the zip executable is available
+        $packer = $conf['plugin']['nsexport']['packer____ziphtml____zip'];
         if (!file_exists($packer) || !is_file($packer)) {
-            return;
+            return false;
         }
 
         // prepare some basic settings
-        $media = array();
-        $tmpdir  = io_mktmpdir();
-        if ($tmpdir === false) {
+        $this->tmp  = io_mktmpdir();
+        if ($this->tmp === false) {
             // no tmpdir
-            return;
+            return false;
         }
-        $this->fileid = time().rand(0,99999);
 
-        // return name to the client
-        echo $this->fileid;
-        flush();
-
-        $this->tmp = $tmpdir;
+        $this->media = array();
 
         // begin data collecting
         // add CSS
@@ -43,60 +38,67 @@ class plugin_nsexport_packer_ziphtml extends DokuWiki_Plugin {
 
         unset($html);
 
-        $Renderer = new renderer_plugin_nsexport_xhtml;
+        $this->Renderer = new renderer_plugin_nsexport_xhtml;
 
-        foreach($pages as $ID) {
-            if( auth_quickaclcheck($ID) < AUTH_READ ) continue;
-            @set_time_limit(30);
+        return parent::init_packing($pages);
+    }
 
-            // create relative path to top directory
-            $deep = substr_count($ID,':');
-            $ref  = '';
-            for($i=0; $i<$deep; $i++) $ref .= '../';
+    function pack_page($ID) {
+        global $conf;
+        global $lang;
 
-            // create the output
-            $Renderer->reset();
+        // create relative path to top directory
+        $deep = substr_count($ID,':');
+        $ref  = '';
+        for($i=0; $i<$deep; $i++) $ref .= '../';
 
-            $Renderer->smileys = getSmileys();
-            $Renderer->entities = getEntities();
-            $Renderer->acronyms = getAcronyms();
-            $Renderer->interwiki = getInterwiki();
+        // create the output
+        $this->Renderer->reset();
 
-            $instructions = p_cached_instructions(wikiFN($ID,''),false,$ID);
-            foreach ( $instructions as $instruction ) {
-                // Execute the callback against the Renderer
-                call_user_func_array(array(&$Renderer, $instruction[0]),$instruction[1]);
-            }
-            $html = $Renderer->doc;
+        $this->Renderer->smileys = getSmileys();
+        $this->Renderer->entities = getEntities();
+        $this->Renderer->acronyms = getAcronyms();
+        $this->Renderer->interwiki = getInterwiki();
 
-            $output  = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"'.DOKU_LF;
-            $output .= ' "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">'.DOKU_LF;
-            $output .= '<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="'.$conf['lang'].'"'.DOKU_LF;
-            $output .= ' lang="'.$conf['lang'].'" dir="'.$lang['direction'].'">' . DOKU_LF;
-            $output .= '<head>'.DOKU_LF;
-            $output .= '  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />'.DOKU_LF;
-            $output .= '  <title>'.$ID.'</title>'.DOKU_LF;
-            $output .= '  <link rel="stylesheet" media="all" type="text/css" href="'.$ref.'all.css" />'.DOKU_LF;
-            $output .= '  <link rel="stylesheet" media="screen" type="text/css" href="'.$ref.'screen.css" />'.DOKU_LF;
-            $output .= '  <link rel="stylesheet" media="print" type="text/css" href="'.$ref.'print.css" />'.DOKU_LF;
-            $output .= '  <link rel="stylesheet" media="all" type="text/css" href="'.$ref.'export.css" />'.DOKU_LF;
-            $output .= '</head>'.DOKU_LF;
-            $output .= '<body>'.DOKU_LF;
-            $output .= '<div class="dokuwiki export">' . DOKU_LF;
-            $output .= tpl_toc(true);
-            $output .= $html;
-            $output .= '</div>';
-            $output .= '</body>'.DOKU_LF;
-            $output .= '</html>'.DOKU_LF;
-
-            $this->_addFile(str_replace(':','/',$ID).'.html',$output);
-            $media = array_merge($media,(array) p_get_metadata($ID,'plugin_nsexport'));
+        $instructions = p_cached_instructions(wikiFN($ID,''),false,$ID);
+        foreach ( $instructions as $instruction ) {
+            // Execute the callback against the Renderer
+            call_user_func_array(array(&$this->Renderer, $instruction[0]),
+                                 $instruction[1]);
         }
+        $html = $this->Renderer->doc;
+
+        $output  = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"'.DOKU_LF;
+        $output .= ' "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">'.DOKU_LF;
+        $output .= '<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="'.$conf['lang'].'"'.DOKU_LF;
+        $output .= ' lang="'.$conf['lang'].'" dir="'.$lang['direction'].'">' . DOKU_LF;
+        $output .= '<head>'.DOKU_LF;
+        $output .= '  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />'.DOKU_LF;
+        $output .= '  <title>'.$ID.'</title>'.DOKU_LF;
+        $output .= '  <link rel="stylesheet" media="all" type="text/css" href="'.$ref.'all.css" />'.DOKU_LF;
+        $output .= '  <link rel="stylesheet" media="screen" type="text/css" href="'.$ref.'screen.css" />'.DOKU_LF;
+        $output .= '  <link rel="stylesheet" media="print" type="text/css" href="'.$ref.'print.css" />'.DOKU_LF;
+        $output .= '  <link rel="stylesheet" media="all" type="text/css" href="'.$ref.'export.css" />'.DOKU_LF;
+        $output .= '</head>'.DOKU_LF;
+        $output .= '<body>'.DOKU_LF;
+        $output .= '<div class="dokuwiki export">' . DOKU_LF;
+        $output .= tpl_toc(true);
+        $output .= $html;
+        $output .= '</div>';
+        $output .= '</body>'.DOKU_LF;
+        $output .= '</html>'.DOKU_LF;
+
+        $this->_addFile(str_replace(':','/',$ID).'.html',$output);
+        $this->media = array_merge($this->media,(array) p_get_metadata($ID,'plugin_nsexport'));
+    }
+
+    function finish_packing() {
+        global $conf;
 
         // now embed the media
-        $media = array_map('cleanID',$media);
-        $media = array_unique($media);
-        foreach($media as $id) {
+        $this->media = array_map('cleanID',$this->media);
+        $this->media = array_unique($this->media);
+        foreach($this->media as $id) {
             if( auth_quickaclcheck($id) < AUTH_READ ) continue;
             @set_time_limit(30);
             $this->_addFile('_media/'.str_replace(':','/',$id),io_readFile(mediaFN($id),false));
@@ -117,7 +119,7 @@ class plugin_nsexport_packer_ziphtml extends DokuWiki_Plugin {
         $this->rmdirr($this->tmp);
 
         // rename so ajax can find it
-        rename($to,$conf['tmpdir'] . '/offline-' . $this->fileid . '.zip');
+        rename($to, $this->result_filename());
     }
 
     /**
@@ -187,40 +189,4 @@ class plugin_nsexport_packer_ziphtml extends DokuWiki_Plugin {
         return rmdir($dirname);
     }
 
-    function get_status($fid) {
-        global $conf;
-        return is_file($conf['tmpdir'] . '/offline-' . $fid . '.zip');
-    }
-
-    function get_pack($key) {
-        global $conf;
-        @ignore_user_abort(true);
-
-        if (!is_numeric($key)) {
-            return;
-        }
-
-        $filename = $conf['tmpdir'].'/offline-'. $key .'.zip';
-        if (!is_file($filename)) {
-            send_redirect(DOKU_BASE . 'doku.php');
-        }
-
-        // send to browser
-        header('Content-Type: application/zip');
-        header('Content-Disposition: attachment; filename="export.zip"');
-        header('Expires: 0');
-        header('Content-Length: ' . filesize($filename));
-        header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
-        header('Content-Transfer-Encoding: binary');
-        header('Pragma: public');
-        flush();
-        @set_time_limit(0);
-
-        $fh = @fopen($filename, 'rb');
-        while (!feof($fh)) {
-            echo fread($fh, 1024);
-        }
-        fclose($fh);
-        @unlink($filename);
-    }
 }

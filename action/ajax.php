@@ -92,7 +92,11 @@ class action_plugin_nsexport_ajax extends DokuWiki_Action_Plugin {
         global $conf;
 
         // requested namespaces
-        $pages = $_REQUEST['export'];
+        if (isset($_REQUEST['export'])) {
+            $pages = $_REQUEST['export'];
+        } else {
+            $pages = array();
+        }
 
         // turn off error reporting - we don't want any error messages in the output.
 //        error_reporting(0);
