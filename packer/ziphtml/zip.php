@@ -87,6 +87,7 @@ class nsexport_zip {
 
     function start($key, $user, $pages, $groups) {
         global $conf;
+        global $lang;
 
         $pages = unserialize($pages);
 

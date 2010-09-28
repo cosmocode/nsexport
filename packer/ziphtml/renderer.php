@@ -52,7 +52,7 @@ class renderer_plugin_nsexport_xhtml extends Doku_Renderer_xhtml {
     /**
      * Rewrite all internal links to local html files
      */
-    function internallink($id, $name = NULL, $search=NULL,$returnonly=false,$linktype='content') {
+    function internallink($id, $name = null, $search=null,$returnonly=false,$linktype='content') {
         global $conf;
         global $ID;
         // default name is based on $id as given
@@ -109,8 +109,8 @@ class renderer_plugin_nsexport_xhtml extends Doku_Renderer_xhtml {
      *
      * @author Andreas Gohr <andi@splitbrain.org>
      */
-    function _media ($src, $title=NULL, $align=NULL, $width=NULL,
-                      $height=NULL, $cache=NULL, $render = true) {
+    function _media ($src, $title=null, $align=null, $width=null,
+                      $height=null, $cache=null, $render = true) {
         $ret = '';
         $src = $this->_localMedia($src);
 
@@ -191,8 +191,8 @@ class renderer_plugin_nsexport_xhtml extends Doku_Renderer_xhtml {
         return $ret;
     }
 
-    function internalmedia ($src, $title=NULL, $align=NULL, $width=NULL,
-                            $height=NULL, $cache=NULL, $linking=NULL) {
+    function internalmedia ($src, $title=null, $align=null, $width=null,
+                            $height=null, $cache=null, $linking=null) {
         global $ID;
         list($src,$hash) = explode('#',$src,2);
         resolve_mediaid(getNS($ID),$src, $exists);

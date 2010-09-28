@@ -36,8 +36,6 @@ class plugin_nsexport_packer_ziphtml extends plugin_nsexport_packer {
         $css   = io_readFile(dirname(__FILE__).'/export.css',false);
         $this->_addFile('export.css',$css);
 
-        unset($html);
-
         $this->Renderer = new renderer_plugin_nsexport_xhtml;
 
         return parent::init_packing($pages);

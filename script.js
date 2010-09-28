@@ -39,7 +39,7 @@ addInitEvent(function(){
             return false;
         };
         ajax.runAJAX(param);
-    }
+    };
 
     // prepare ajax
     var ajax = new sack(DOKU_BASE+'lib/exe/ajax.php');
