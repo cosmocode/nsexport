@@ -1,3 +1,4 @@
+base    nsexport
 author  Andreas Gohr
 email   dokuwiki@cosmocode.de
 date    2009-06-03
