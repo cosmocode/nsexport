@@ -36,14 +36,15 @@ class plugin_nsexport_packer_ziphtml extends plugin_nsexport_packer {
         $css   = io_readFile(dirname(__FILE__).'/export.css',false);
         $this->_addFile('export.css',$css);
 
-        $this->Renderer = new renderer_plugin_nsexport_xhtml;
-
         return parent::init_packing($pages);
     }
 
-    function pack_page($ID) {
+    function pack_page($ID_PAGE) {
         global $conf;
         global $lang;
+        global $ID;
+
+        $ID = $ID_PAGE;
 
         // create relative path to top directory
         $deep = substr_count($ID,':');
@@ -51,7 +52,7 @@ class plugin_nsexport_packer_ziphtml extends plugin_nsexport_packer {
         for($i=0; $i<$deep; $i++) $ref .= '../';
 
         // create the output
-        $this->Renderer->reset();
+        $this->Renderer = new renderer_plugin_nsexport_xhtml;
 
         $this->Renderer->smileys = getSmileys();
         $this->Renderer->entities = getEntities();
@@ -87,7 +88,7 @@ class plugin_nsexport_packer_ziphtml extends plugin_nsexport_packer {
         $output .= '</html>'.DOKU_LF;
 
         $this->_addFile(str_replace(':','/',$ID).'.html',$output);
-        $this->media = array_merge($this->media,(array) p_get_metadata($ID,'plugin_nsexport'));
+        $this->media = array_merge($this->media, $this->Renderer->_media);
     }
 
     function finish_packing() {
