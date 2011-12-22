@@ -51,7 +51,7 @@ class plugin_nsexport_packer_ziphtml extends plugin_nsexport_packer {
         for($i=0; $i<$deep; $i++) $ref .= '../';
 
         // create the output
-        $this->Renderer->reset();
+        $this->Renderer = new renderer_plugin_nsexport_xhtml;
 
         $this->Renderer->smileys = getSmileys();
         $this->Renderer->entities = getEntities();
