@@ -16,7 +16,7 @@ class action_plugin_nsexport_export extends DokuWiki_Action_Plugin {
 
     var $run = false;
 
-    function register(&$controller) {
+    function register(Doku_Event_Handler $controller) {
         $controller->register_hook('TPL_ACT_UNKNOWN','BEFORE',  $this, 'nsexport');
         $controller->register_hook('ACTION_ACT_PREPROCESS','BEFORE',  $this, 'act');
     }
