@@ -27,7 +27,7 @@ class action_plugin_nsexport_ajax extends DokuWiki_Action_Plugin {
     // ID from the export zip
     var $fileid;
 
-    function register(&$controller) {
+    function register(Doku_Event_Handler $controller) {
         $controller->register_hook('AJAX_CALL_UNKNOWN', 'BEFORE', $this, 'handle_ajax_call');
     }
 
