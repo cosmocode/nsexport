@@ -61,6 +61,9 @@ class action_plugin_nsexport_ajax extends DokuWiki_Action_Plugin {
         echo '1';
     }
 
+    /**
+     * @return plugin_nsexport_packer|null
+     */
     public function getPacker() {
         $packer_file = DOKU_PLUGIN . 'nsexport/packer/' . $this->getConf('usepacker') . '/packer.php';
         if (!file_exists($packer_file)) {

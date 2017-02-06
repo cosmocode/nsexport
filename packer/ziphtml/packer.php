@@ -124,8 +124,8 @@ class plugin_nsexport_packer_ziphtml extends plugin_nsexport_packer {
     /**
      * add a single file.
      *
-     * @param $filename     filename to store
-     * @param $content      the file content
+     * @param string $filename     filename to store
+     * @param string $content      the file content
      */
     public function _addFile($filename, $content) {
         $filename = $this->tmp . "/$filename";

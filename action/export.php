@@ -8,6 +8,11 @@ class action_plugin_nsexport_export extends DokuWiki_Action_Plugin {
 
     public $run = false;
 
+    /**
+     * Registers a callback function for a given event
+     *
+     * @param Doku_Event_Handler $controller
+     */
     public function register(Doku_Event_Handler $controller) {
         $controller->register_hook('TPL_ACT_UNKNOWN','BEFORE',  $this, 'nsexport');
         $controller->register_hook('ACTION_ACT_PREPROCESS','BEFORE',  $this, 'act');

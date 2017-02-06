@@ -4,6 +4,7 @@ define('DOKU_DISABLE_GZIP_OUTPUT', 1);
 require_once(DOKU_INC.'inc/init.php');
 session_write_close();
 
+/** @var action_plugin_nsexport_ajax $plugin */
 $plugin = plugin_load('action','nsexport_ajax');
 $packer = $plugin->getPacker();
 if ($packer !== null) {
