@@ -3,154 +3,87 @@
  *
  * @param key file key
  */
-addInitEvent(function(){
-    var frm = getElementsByClass('plugin_nsexport__form', document, 'form');
-    if (frm.length === 0) return;
-    frm = frm[0];
+jQuery(function handleDOMReady() {
+    'use strict';
 
-    var btn = $('do__export');
+    let $form = jQuery('form.plugin_nsexport__form');
+    if ($form.length === 0) return;
+    $form = $form.first();
 
-    var interval_id = null;
-    var interval = 500;
+    const INTERVAL_MAX = 10000;
+    const INTERVAL_STEP = 1000;
+    let intervalId = null;
+    let interval = 500;
 
-    window.nsexport_check = function (key) {
-        // build request
-        var ajax = new sack(DOKU_BASE+'lib/exe/ajax.php');
-        var param = 'call=nsexport_check&key=' + key;
-        ajax.AjaxFailedAlert = '';
-        ajax.encodeURIString = false;
+    window.nsexport_check = function nsexportCheck(key) {
+        const url = DOKU_BASE + 'lib/exe/ajax.php';
+        const data = {
+            call: 'nsexport_check',
+            key: key,
+        };
 
-        ajax.onCompletion = function(){
-            var data = this.response;
-            clearInterval(interval_id);
+        jQuery.post(url, data).done(function handleCheckResult(response) {
+            clearInterval(intervalId);
 
-            if(data === '1') {
+            if (response === '1') {
                 // download is ready - get it
-                var throb = $('plugin_nsexport__throbber');
-                throb.parentNode.replaceChild(document.createTextNode(LANG.plugins.nsexport.done), throb);
-                window.location = DOKU_BASE+'lib/plugins/nsexport/export.php?key=' + key;
+                const $throb = jQuery('#plugin_nsexport__throbber');
+                $throb.replaceWith(LANG.plugins.nsexport.done);
+                window.location = DOKU_BASE + 'lib/plugins/nsexport/export.php?key=' + key;
                 return false;
             }
 
-            if (interval < 10000) interval += 1000;
-            interval_id = setInterval("nsexport_check('" + data + "')", interval);
+            if (interval < INTERVAL_MAX) {
+                interval += INTERVAL_STEP;
+            }
+            intervalId = setInterval(window.nsexport_check, interval, response);
 
             // download not ready - wait
             return false;
+        });
+    };
+
+    function startExport() {
+        const data = {
+            call: 'nsexport_start',
+            pages: [],
         };
-        ajax.runAJAX(param);
-    };
 
-    // prepare ajax
-    var ajax = new sack(DOKU_BASE+'lib/exe/ajax.php');
-    var param = 'call=nsexport_start';
+        $form.find('[name="export[]"]:checked').each(function extractPageID(index, element) {
+            data.pages.push(element.value);
+        });
 
-    ajax.AjaxFailedAlert = '';
-    ajax.encodeURIString = false;
+        const url = DOKU_BASE + 'lib/exe/ajax.php';
 
-    ajax.onCompletion = function(){
-        var data = this.response;
-        if(data === '') {
-            return;
-        }
-        // start waiting for dl
-        interval_id = setInterval("nsexport_check('" + data + "')", interval);
-        return false;
-    };
-
-    function start_export() {
-        var msg = document.createElement('div');
-        msg.className = 'level1';
-        msg.innerHTML = '<p>' + LANG.plugins.nsexport.loading
-        + '<img id="plugin_nsexport__throbber" src="' + DOKU_BASE + 'lib/images/throbber.gif" alt="…" /></p>';
-
-        frm.parentNode.appendChild(msg);
-
-        // add export pages
-        for (var i = 0; i < frm['export[]'].length; i++) {
-            if (frm['export[]'][i].checked) {
-                param += '&export[]=' + frm['export[]'][i].value;
+        jQuery.post(url, data).done(
+            function packagingStarted(response) {
+                if (response === '') {
+                    return;
+                }
+                // start waiting for dl
+                intervalId = setInterval(window.nsexport_check, interval, response);
             }
-        }
+        );
 
-        ajax.runAJAX(param);
+        const $msg = jQuery('<div>').addClass('level1').html('<p>' + LANG.plugins.nsexport.loading
+            + '<img id="plugin_nsexport__throbber" src="' + DOKU_BASE + 'lib/images/throbber.gif" alt="…"></p>');
+
+        $form.replaceWith($msg);
     }
 
-    if (frm.className.match(/\bplugin_nsexport__started\b/)) {
+    if ($form.hasClass('plugin_nsexport__started')) {
         // Autostart
-        start_export();
+        startExport();
         return;
     }
 
-    addEvent(btn, 'click', function(e){
-        frm.className = 'plugin_nsexport__started';
+    $form.submit(function handleFormSubmit(e) {
+        $form.removeClass().addClass('plugin_nsexport__started');
 
-        start_export();
+        startExport();
 
         e.preventDefault();
         e.stopPropagation();
         return false;
     });
-
-    function pagePosY(obj) {
-        var c_val = 0;
-        var c_elem = obj;
-        do {
-            c_val += c_elem.offsetTop;
-            c_elem = c_elem.offsetParent;
-        } while (c_elem);
-        return c_val;
-    }
-
-    function getListItem(target, items) {
-        for (var i = 0 ; i < items.length; ++i) {
-            var startelem = items[i];
-            var c_val = pagePosY(items[i]);
-            if (target >= c_val && c_val >= target - startelem.offsetHeight) {
-                return i;
-            }
-        }
-        return -1;
-    }
-
-    function NSExportDrag() {
-        this.start = function (e) {
-            document.body.style.cursor = 'move';
-            return drag.start.call(this, e);
-        };
-
-        this.drag = function (e) {
-            var items = frm.getElementsByTagName('li');
-            var target = getListItem(e.pageY, items);
-            if (target === -1) {
-                return false;
-            }
-            for (var mypos = 0 ; items[mypos] !== this.obj &&
-                                 mypos < items.length ; ++mypos);
-            if (target === mypos || mypos === items.length) {
-                return false;
-            } else if (target > mypos) {
-                ++target;
-            }
-            this.obj.parentNode.insertBefore(this.obj,
-                                             items[target] || null);
-            return false;
-        };
-
-        this.stop = function () {
-            document.body.style.cursor = '';
-            // Prevent unchecking of item
-            addEvent(this.obj.firstChild.firstChild,'click', function (e) {
-                removeEvent(this, 'click', arguments.callee);
-                return false;
-            });
-            return drag.stop.call(this);
-        };
-    }
-    NSExportDrag.prototype = drag;
-
-    var items = frm.getElementsByTagName('li');
-    for (var i = 0 ; i < items.length ; ++i) {
-        (new NSExportDrag()).attach(items[i], items[i].getElementsByTagName('label')[0]);
-    }
 });

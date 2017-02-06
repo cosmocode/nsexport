@@ -2,12 +2,12 @@
 
 class nsexport_ziplib implements nsexport_compressor {
 
-    var $plugin = null;
+    public $plugin = null;
 
-    function setup(&$plugin) {
+    public function setup(&$plugin) {
     }
 
-    function compress($sourceFolder, $destinationFile) {
+    public function compress($sourceFolder, $destinationFile) {
         global $conf;
         chdir($sourceFolder);
         $zip  = $conf['plugin']['nsexport']['packer____ziphtml____zip'];

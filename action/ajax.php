@@ -1,16 +1,6 @@
 <?php
 
 if(!defined('DOKU_INC')) die();
-if(!defined('DOKU_PLUGIN')) define('DOKU_PLUGIN',DOKU_INC.'lib/plugins/');
-
-require_once(DOKU_PLUGIN.'action.php');
-
-require_once(DOKU_INC.'inc/search.php');
-require_once(DOKU_INC.'inc/html.php');
-require_once(DOKU_INC.'inc/io.php');
-require_once(DOKU_INC.'inc/common.php');
-require_once(DOKU_INC.'inc/template.php');
-require_once(DOKU_INC.'inc/HTTPClient.php');
 
 /**
  * this part of the plugin handles all ajax requests.
@@ -22,36 +12,37 @@ require_once(DOKU_INC.'inc/HTTPClient.php');
 class action_plugin_nsexport_ajax extends DokuWiki_Action_Plugin {
 
     // temporary directory
-    var $tmp;
+    public $tmp;
 
     // ID from the export zip
-    var $fileid;
+    public $fileid;
 
-    function register(Doku_Event_Handler $controller) {
+    public function register(Doku_Event_Handler $controller) {
         $controller->register_hook('AJAX_CALL_UNKNOWN', 'BEFORE', $this, 'handle_ajax_call');
     }
 
     /**
      * route ajax calls to a function
      */
-    function handle_ajax_call(&$event, $param) {
-        $map = array('nsexport_start' => 'prepare_dl',
-                     'nsexport_check' => 'check');
+    public function handle_ajax_call(Doku_Event $event, $param) {
+        if ($event->data === 'nsexport_start') {
+            $event->preventDefault();
+            $this->prepare_dl();
+            return;
+        }
 
-        // ignore unexpected calls
-        if (!isset($map[$event->data])) return;
-
-        call_user_func(array($this, $map[$event->data]));
-
-        // stop other event calls
-        $event->preventDefault();
+        if ($event->data === 'nsexport_check') {
+            $event->preventDefault();
+            $this->check();
+            return;
+        }
     }
 
     /**
      * check if the download is ready for download.
      * print 0 on not ready and 1 on ready
      */
-    function check() {
+    public function check() {
         $fid = $_REQUEST['key'];
 
         if (!is_numeric($fid)) {
@@ -63,20 +54,23 @@ class action_plugin_nsexport_ajax extends DokuWiki_Action_Plugin {
             return;
         }
         $packer = $this->getPacker();
-        if (is_null($packer) || !$packer->get_status($fid)) {
+        if ($packer === null || !$packer->get_status($fid)) {
             echo '0';
             return;
         }
         echo '1';
     }
 
-    function getPacker() {
-        $packer_file = DOKU_PLUGIN . 'nsexport/packer/' . $this->getConf('usepacker') . '/packer.php';
+    /**
+     * @return plugin_nsexport_packer|null
+     */
+    public function getPacker() {
+        $packer_file = DOKU_PLUGIN . 'nsexport/packer/ziphtml/packer.php';
         if (!file_exists($packer_file)) {
             return null;
         }
         require_once $packer_file;
-        $packer_class = 'plugin_nsexport_packer_' . $this->getConf('usepacker');
+        $packer_class = 'plugin_nsexport_packer_ziphtml';
         $packer = new $packer_class;
         return $packer;
     }
@@ -86,17 +80,11 @@ class action_plugin_nsexport_ajax extends DokuWiki_Action_Plugin {
      *
      * echos a unique id to check back to the client, build the export
      */
-    function prepare_dl() {
-        global $USERINFO;
-        global $ID;
-        global $conf;
+    public function prepare_dl() {
+        global $INPUT;
 
-        // requested namespaces
-        if (isset($_REQUEST['export'])) {
-            $pages = $_REQUEST['export'];
-        } else {
-            $pages = array();
-        }
+        $pages = $INPUT->arr('pages');
+
 
         // turn off error reporting - we don't want any error messages in the output.
 //        error_reporting(0);
@@ -108,7 +96,7 @@ class action_plugin_nsexport_ajax extends DokuWiki_Action_Plugin {
         set_time_limit(0);
 
         $packer = $this->getPacker();
-        if (is_null($packer)) {
+        if ($packer === null) {
             return false;
         }
         $packer->start_packing($pages);

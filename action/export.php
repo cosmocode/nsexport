@@ -1,33 +1,32 @@
 <?php
 if(!defined('DOKU_INC')) die();
-if(!defined('DOKU_PLUGIN')) define('DOKU_PLUGIN',DOKU_INC.'lib/plugins/');
-require_once(DOKU_PLUGIN.'action.php');
-
-require_once(DOKU_INC.'inc/search.php');
-require_once(DOKU_INC.'inc/html.php');
-require_once(DOKU_INC.'inc/io.php');
-require_once(DOKU_INC.'inc/common.php');
-require_once(DOKU_INC.'inc/template.php');
 
 /**
  * Namespace export : Action component to send compressed ZIP file.
  */
 class action_plugin_nsexport_export extends DokuWiki_Action_Plugin {
 
-    var $run = false;
+    public $run = false;
 
-    function register(Doku_Event_Handler $controller) {
+    /**
+     * Registers a callback function for a given event
+     *
+     * @param Doku_Event_Handler $controller
+     */
+    public function register(Doku_Event_Handler $controller) {
         $controller->register_hook('TPL_ACT_UNKNOWN','BEFORE',  $this, 'nsexport');
         $controller->register_hook('ACTION_ACT_PREPROCESS','BEFORE',  $this, 'act');
     }
 
-    function act(&$event , $param) {
-        if ($event->data != 'nsexport') return false;
+    public function act(Doku_Event $event , $param) {
+        if ($event->data !== 'nsexport') {
+            return;
+        }
         $event->preventDefault();
         $this->run = true;
     }
 
-    function nsexport(&$event, $param) {
+    public function nsexport(Doku_Event $event, $param) {
         if (!$this->run) return;
 
         // stops default action handler
@@ -41,7 +40,7 @@ class action_plugin_nsexport_export extends DokuWiki_Action_Plugin {
             echo $this->locale_xhtml('intro');
         }
         echo '<div class="level1"><p>' .
-             $this->getLang('packer___' . $this->getConf('usepacker') . '___intro') .
+             $this->getLang('packer___ziphtml___intro') .
              '</p></div>';
         $this->_listPages($id);
     }
@@ -50,7 +49,7 @@ class action_plugin_nsexport_export extends DokuWiki_Action_Plugin {
      * Create a list of pages about to be exported within a form
      * to start the export
      */
-    function _listPages($id){
+    public function _listPages($id){
         global $ID;
 
         $pages = array();
@@ -81,7 +80,7 @@ class action_plugin_nsexport_export extends DokuWiki_Action_Plugin {
         echo '</form>';
     }
 
-    function tpl_link($return = false) {
+    public function tpl_link($return = false) {
         global $ID;
         $caption = hsc($this->getLang('link'));
         return tpl_link(wl($ID, array('do' => 'nsexport')), $caption,

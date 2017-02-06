@@ -7,7 +7,7 @@
  */
 
 
-if ('cli' != php_sapi_name()) die();
+if ('cli' !== php_sapi_name()) die();
 
 if(!defined('DOKU_INC')) define('DOKU_INC',realpath(dirname(__FILE__).'/../../../').'/');
 define('NOSESSION',1);
@@ -20,24 +20,24 @@ require_once(DOKU_INC.'inc/io.php');
 
 $args = Doku_Cli_Opts::readPHPArgv();
 
-if (count($args) != 5) die(-1);
+if (count($args) !== 5) die(-1);
 
 class nsexport_zip {
 
-    var $tmp;
+    public $tmp;
 
-    function _addFile($filename, $content) {
+    public function _addFile($filename, $content) {
         $filename = $this->tmp . "/$filename";
         io_makeFileDir($filename);
         file_put_contents($filename , $content);
     }
 
-    function recursive_add($base,$dir=''){
+    public function recursive_add($base, $dir=''){
         $fh = @opendir("$base/$dir");
         if(!$fh) return;
         while(false !== ($file = readdir($fh))) {
             @set_time_limit(30);
-            if($file == '..' || $file[0] == '.') continue;
+            if($file === '..' || $file[0] === '.') continue;
             if(is_dir("$base/$dir/$file")){
                 $this->recursive_add($base,"$dir/$file");
             }else{
@@ -56,7 +56,7 @@ class nsexport_zip {
      * @param       string   $dirname    Directory to delete
      * @return      bool     Returns TRUE on success, FALSE on failure
      */
-    function rmdirr($dirname)
+    public function rmdirr($dirname)
     {
         // Sanity check
         if (!file_exists($dirname)) {
@@ -72,7 +72,7 @@ class nsexport_zip {
         $dir = dir($dirname);
         while (false !== $entry = $dir->read()) {
             // Skip pointers
-            if ($entry == '.' || $entry == '..') {
+            if ($entry === '.' || $entry === '..') {
                 continue;
             }
 
@@ -85,7 +85,7 @@ class nsexport_zip {
         return rmdir($dirname);
     }
 
-    function start($key, $user, $pages, $groups) {
+    public function start($key, $user, $pages, $groups) {
         global $conf;
         global $lang;
 
@@ -180,7 +180,7 @@ class nsexport_zip {
     /**
      * Do the action
      */
-    function _export_html($pages){
+    public function _export_html($pages){
         global $conf;
         @ignore_user_abort(true);
         $filename = $conf['tmpdir'].'/offline-'.time().rand(0,99999).'.zip';
