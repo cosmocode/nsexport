@@ -54,7 +54,7 @@ class action_plugin_nsexport_ajax extends DokuWiki_Action_Plugin {
             return;
         }
         $packer = $this->getPacker();
-        if (is_null($packer) || !$packer->get_status($fid)) {
+        if ($packer === null || !$packer->get_status($fid)) {
             echo '0';
             return;
         }
@@ -93,7 +93,7 @@ class action_plugin_nsexport_ajax extends DokuWiki_Action_Plugin {
         set_time_limit(0);
 
         $packer = $this->getPacker();
-        if (is_null($packer)) {
+        if ($packer === null) {
             return false;
         }
         $packer->start_packing($pages);

@@ -6,4 +6,6 @@ session_write_close();
 
 $plugin = plugin_load('action','nsexport_ajax');
 $packer = $plugin->getPacker();
-if (!is_null($packer)) $packer->get_pack($_REQUEST['key']);
+if ($packer !== null) {
+    $packer->get_pack($_REQUEST['key']);
+}
