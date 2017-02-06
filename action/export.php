@@ -1,13 +1,5 @@
 <?php
 if(!defined('DOKU_INC')) die();
-if(!defined('DOKU_PLUGIN')) define('DOKU_PLUGIN',DOKU_INC.'lib/plugins/');
-require_once(DOKU_PLUGIN.'action.php');
-
-require_once(DOKU_INC.'inc/search.php');
-require_once(DOKU_INC.'inc/html.php');
-require_once(DOKU_INC.'inc/io.php');
-require_once(DOKU_INC.'inc/common.php');
-require_once(DOKU_INC.'inc/template.php');
 
 /**
  * Namespace export : Action component to send compressed ZIP file.
