@@ -191,8 +191,8 @@ class renderer_plugin_nsexport_xhtml extends Doku_Renderer_xhtml {
         return $ret;
     }
 
-    public function internalmedia ($src, $title=null, $align=null, $width=null,
-                                   $height=null, $cache=null, $linking=null) {
+    public function internalmedia ($src, $title = null, $align = null, $width = null,
+                                   $height = null, $cache = null, $linking = null, $return = false) {
         global $ID;
         list($src,$hash) = explode('#',$src,2);
         resolve_mediaid(getNS($ID),$src, $exists);
