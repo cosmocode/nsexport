@@ -18,13 +18,15 @@ class action_plugin_nsexport_export extends DokuWiki_Action_Plugin {
         $controller->register_hook('ACTION_ACT_PREPROCESS','BEFORE',  $this, 'act');
     }
 
-    public function act(&$event , $param) {
-        if ($event->data !== 'nsexport') return false;
+    public function act(Doku_Event $event , $param) {
+        if ($event->data !== 'nsexport') {
+            return;
+        }
         $event->preventDefault();
         $this->run = true;
     }
 
-    public function nsexport(&$event, $param) {
+    public function nsexport(Doku_Event $event, $param) {
         if (!$this->run) return;
 
         // stops default action handler
