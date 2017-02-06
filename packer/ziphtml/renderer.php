@@ -87,7 +87,7 @@ class renderer_plugin_nsexport_xhtml extends Doku_Renderer_xhtml {
         $link['pre']    = '';
         $link['suf']    = '';
         // highlight link to current page
-        if ($id == $ID) {
+        if ($id === $ID) {
             $link['pre']    = '<span class="curid">';
             $link['suf']    = '</span>';
         }
@@ -115,11 +115,11 @@ class renderer_plugin_nsexport_xhtml extends Doku_Renderer_xhtml {
         $src = $this->_localMedia($src);
 
         list($ext,$mime,$dl) = mimetype($src);
-        if(substr($mime,0,5) == 'image'){
+        if(substr($mime,0,5) === 'image'){
             // first get the $title
             if (!is_null($title)) {
                 $title  = $this->_xmlEntities($title);
-            }elseif($ext == 'jpg' || $ext == 'jpeg'){
+            }elseif($ext === 'jpg' || $ext === 'jpeg'){
                 //try to use the caption from IPTC/EXIF
                 require_once(DOKU_INC.'inc/JpegMeta.php');
                 $jpeg = new JpegMeta(mediaFN($src));
@@ -142,8 +142,8 @@ class renderer_plugin_nsexport_xhtml extends Doku_Renderer_xhtml {
             $ret .= ' class="media'.$align.'"';
 
             // make left/right alignment for no-CSS view work (feeds)
-            if($align == 'right') $ret .= ' align="right"';
-            if($align == 'left')  $ret .= ' align="left"';
+            if($align === 'right') $ret .= ' align="right"';
+            if($align === 'left')  $ret .= ' align="left"';
 
             if ($title) {
                 $ret .= ' title="' . $title . '"';
@@ -160,7 +160,7 @@ class renderer_plugin_nsexport_xhtml extends Doku_Renderer_xhtml {
 
             $ret .= ' />';
 
-        }elseif($mime == 'application/x-shockwave-flash'){
+        }elseif($mime === 'application/x-shockwave-flash'){
             if (!$render) {
                 // if the flash is not supposed to be rendered
                 // return the title of the flash
@@ -173,8 +173,8 @@ class renderer_plugin_nsexport_xhtml extends Doku_Renderer_xhtml {
 
             $att = array();
             $att['class'] = "media$align";
-            if($align == 'right') $att['align'] = 'right';
-            if($align == 'left')  $att['align'] = 'left';
+            if($align === 'right') $att['align'] = 'right';
+            if($align === 'left')  $att['align'] = 'left';
             $ret .= html_flashobject($src,$width,$height,
                                      array('quality' => 'high'),
                                      null,
@@ -199,13 +199,13 @@ class renderer_plugin_nsexport_xhtml extends Doku_Renderer_xhtml {
 
         $lsrc = $this->_localMedia($src);
         $noLink = false;
-        $render = ($linking == 'linkonly') ? false : true;
+        $render = ($linking === 'linkonly') ? false : true;
         $link = $this->_getMediaLinkConf($src, $title, $align, $width, $height, $cache, $render);
         $link['url'] = $lsrc;
 
         list($ext,$mime,$dl) = mimetype($src);
-        if(substr($mime,0,5) == 'image' && $render){
-        }elseif($mime == 'application/x-shockwave-flash' && $render){
+        if(substr($mime,0,5) === 'image' && $render){
+        }elseif($mime === 'application/x-shockwave-flash' && $render){
             // don't link flash movies
             $noLink = true;
         }else{
@@ -221,7 +221,7 @@ class renderer_plugin_nsexport_xhtml extends Doku_Renderer_xhtml {
           $link['class'] .= ' wikilink2';
 
         //output formatted
-        if ($linking == 'nolink' || $noLink) $this->doc .= $link['name'];
+        if ($linking === 'nolink' || $noLink) $this->doc .= $link['name'];
         else $this->doc .= $this->_formatLink($link);
 
     }

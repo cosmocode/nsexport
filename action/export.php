@@ -22,7 +22,7 @@ class action_plugin_nsexport_export extends DokuWiki_Action_Plugin {
     }
 
     public function act(&$event , $param) {
-        if ($event->data != 'nsexport') return false;
+        if ($event->data !== 'nsexport') return false;
         $event->preventDefault();
         $this->run = true;
     }

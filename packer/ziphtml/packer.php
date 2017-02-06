@@ -141,7 +141,7 @@ class plugin_nsexport_packer_ziphtml extends plugin_nsexport_packer {
         if(!$fh) return;
         while(false !== ($file = readdir($fh))) {
             @set_time_limit(30);
-            if($file == '..' || $file[0] == '.') continue;
+            if($file === '..' || $file[0] === '.') continue;
             if(is_dir("$base/$dir/$file")) {
                 $this->recursive_add($base,"$dir/$file");
             }else {
@@ -175,7 +175,7 @@ class plugin_nsexport_packer_ziphtml extends plugin_nsexport_packer {
         $dir = dir($dirname);
         while (false !== $entry = $dir->read()) {
             // Skip pointers
-            if ($entry == '.' || $entry == '..') {
+            if ($entry === '.' || $entry === '..') {
                 continue;
             }
 

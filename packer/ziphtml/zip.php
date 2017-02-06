@@ -7,7 +7,7 @@
  */
 
 
-if ('cli' != php_sapi_name()) die();
+if ('cli' !== php_sapi_name()) die();
 
 if(!defined('DOKU_INC')) define('DOKU_INC',realpath(dirname(__FILE__).'/../../../').'/');
 define('NOSESSION',1);
@@ -20,7 +20,7 @@ require_once(DOKU_INC.'inc/io.php');
 
 $args = Doku_Cli_Opts::readPHPArgv();
 
-if (count($args) != 5) die(-1);
+if (count($args) !== 5) die(-1);
 
 class nsexport_zip {
 
@@ -37,7 +37,7 @@ class nsexport_zip {
         if(!$fh) return;
         while(false !== ($file = readdir($fh))) {
             @set_time_limit(30);
-            if($file == '..' || $file[0] == '.') continue;
+            if($file === '..' || $file[0] === '.') continue;
             if(is_dir("$base/$dir/$file")){
                 $this->recursive_add($base,"$dir/$file");
             }else{
@@ -72,7 +72,7 @@ class nsexport_zip {
         $dir = dir($dirname);
         while (false !== $entry = $dir->read()) {
             // Skip pointers
-            if ($entry == '.' || $entry == '..') {
+            if ($entry === '.' || $entry === '..') {
                 continue;
             }
 
