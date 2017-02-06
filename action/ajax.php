@@ -65,12 +65,12 @@ class action_plugin_nsexport_ajax extends DokuWiki_Action_Plugin {
      * @return plugin_nsexport_packer|null
      */
     public function getPacker() {
-        $packer_file = DOKU_PLUGIN . 'nsexport/packer/' . $this->getConf('usepacker') . '/packer.php';
+        $packer_file = DOKU_PLUGIN . 'nsexport/packer/ziphtml/packer.php';
         if (!file_exists($packer_file)) {
             return null;
         }
         require_once $packer_file;
-        $packer_class = 'plugin_nsexport_packer_' . $this->getConf('usepacker');
+        $packer_class = 'plugin_nsexport_packer_ziphtml';
         $packer = new $packer_class;
         return $packer;
     }

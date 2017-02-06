@@ -40,7 +40,7 @@ class action_plugin_nsexport_export extends DokuWiki_Action_Plugin {
             echo $this->locale_xhtml('intro');
         }
         echo '<div class="level1"><p>' .
-             $this->getLang('packer___' . $this->getConf('usepacker') . '___intro') .
+             $this->getLang('packer___ziphtml___intro') .
              '</p></div>';
         $this->_listPages($id);
     }
