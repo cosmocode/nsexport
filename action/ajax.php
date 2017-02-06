@@ -25,16 +25,17 @@ class action_plugin_nsexport_ajax extends DokuWiki_Action_Plugin {
      * route ajax calls to a function
      */
     public function handle_ajax_call(Doku_Event $event, $param) {
-        $map = array('nsexport_start' => 'prepare_dl',
-                     'nsexport_check' => 'check');
+        if ($event->data === 'nsexport_start') {
+            $event->preventDefault();
+            $this->prepare_dl();
+            return;
+        }
 
-        // ignore unexpected calls
-        if (!isset($map[$event->data])) return;
-
-        call_user_func(array($this, $map[$event->data]));
-
-        // stop other event calls
-        $event->preventDefault();
+        if ($event->data === 'nsexport_check') {
+            $event->preventDefault();
+            $this->check();
+            return;
+        }
     }
 
     /**
@@ -77,16 +78,10 @@ class action_plugin_nsexport_ajax extends DokuWiki_Action_Plugin {
      * echos a unique id to check back to the client, build the export
      */
     public function prepare_dl() {
-        global $USERINFO;
-        global $ID;
-        global $conf;
+        global $INPUT;
 
-        // requested namespaces
-        if (isset($_REQUEST['export'])) {
-            $pages = $_REQUEST['export'];
-        } else {
-            $pages = array();
-        }
+        $pages = $INPUT->arr('pages');
+
 
         // turn off error reporting - we don't want any error messages in the output.
 //        error_reporting(0);
