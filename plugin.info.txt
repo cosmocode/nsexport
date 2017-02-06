@@ -1,7 +1,7 @@
 base    nsexport
 author  Andreas Gohr
 email   dokuwiki@cosmocode.de
-date    2016-07-06
+date    2017-02-06
 name    Namespace Export
 desc    Export all pages in a given namespace
 url     http://www.dokuwiki.org/plugin:nsexport
