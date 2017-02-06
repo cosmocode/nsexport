@@ -20,10 +20,6 @@ form.plugin_nsexport__form li div.li {
     padding: 2px 4px;
 }
 
-form.plugin_nsexport__form li div.li label {
-    cursor: move;
-}
-
 form.plugin_nsexport__form li div.li input {
     vertical-align: middle;
 }
