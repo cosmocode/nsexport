@@ -5,9 +5,9 @@ require_once DOKU_PLUGIN.'nsexport/packer/ziphtml/renderer.php';
 require_once DOKU_PLUGIN.'nsexport/packer/packer.php';
 
 class plugin_nsexport_packer_ziphtml extends plugin_nsexport_packer {
-    var $ext = 'zip';
+    public $ext = 'zip';
 
-    function init_packing($pages) {
+    public function init_packing($pages) {
         global $conf;
         // early check if the zip executable is available
         $packer = $conf['plugin']['nsexport']['packer____ziphtml____zip'];
@@ -39,7 +39,7 @@ class plugin_nsexport_packer_ziphtml extends plugin_nsexport_packer {
         return parent::init_packing($pages);
     }
 
-    function pack_page($ID_PAGE) {
+    public function pack_page($ID_PAGE) {
         global $conf;
         global $lang;
         global $ID;
@@ -91,7 +91,7 @@ class plugin_nsexport_packer_ziphtml extends plugin_nsexport_packer {
         $this->media = array_merge($this->media, $this->Renderer->_media);
     }
 
-    function finish_packing() {
+    public function finish_packing() {
         global $conf;
 
         // now embed the media
@@ -127,7 +127,7 @@ class plugin_nsexport_packer_ziphtml extends plugin_nsexport_packer {
      * @param $filename     filename to store
      * @param $content      the file content
      */
-    function _addFile($filename, $content) {
+    public function _addFile($filename, $content) {
         $filename = $this->tmp . "/$filename";
         io_makeFileDir($filename);
         file_put_contents($filename , $content);
@@ -136,7 +136,7 @@ class plugin_nsexport_packer_ziphtml extends plugin_nsexport_packer {
     /**
      * add a whole dir with subdirs.
      */
-    function recursive_add($base,$dir='') {
+    public function recursive_add($base, $dir='') {
         $fh = @opendir("$base/$dir");
         if(!$fh) return;
         while(false !== ($file = readdir($fh))) {
@@ -160,7 +160,7 @@ class plugin_nsexport_packer_ziphtml extends plugin_nsexport_packer {
      * @param       string   $dirname    Directory to delete
      * @return      bool     Returns TRUE on success, FALSE on failure
      */
-    function rmdirr($dirname) {
+    public function rmdirr($dirname) {
         // Sanity check
         if (!file_exists($dirname)) {
             return false;

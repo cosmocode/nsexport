@@ -4,7 +4,7 @@ require_once DOKU_PLUGIN.'nsexport/packer/packer.php';
 class plugin_nsexport_packer_odt extends plugin_nsexport_packer {
     protected $ext = 'odt';
 
-    function init_packing($pages) {
+    public function init_packing($pages) {
         $this->Renderer = p_get_renderer('odt');
         if (is_null($this->Renderer)) {
             return false;
@@ -20,7 +20,7 @@ class plugin_nsexport_packer_odt extends plugin_nsexport_packer {
         return true;
     }
 
-    function pack_page($ID) {
+    public function pack_page($ID) {
         $instructions = p_cached_instructions(wikiFN($ID,''),false,$ID);
         for ($i = count($instructions) - 1 ; $i >= 0 ; --$i) {
             if ($instructions[$i][0] === 'p_open') {
@@ -37,7 +37,7 @@ class plugin_nsexport_packer_odt extends plugin_nsexport_packer {
         }
     }
 
-    function finish_packing() {
+    public function finish_packing() {
         $this->Renderer->document_end();
 
         global $conf;

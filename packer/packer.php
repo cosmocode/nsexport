@@ -22,15 +22,15 @@ abstract class plugin_nsexport_packer extends DokuWiki_Plugin {
         $this->finish_packing();
     }
 
-    function init_packing($pages) {
+    public function init_packing($pages) {
         return true;
     }
 
-    function pack_page($ID) {
+    public function pack_page($ID) {
 
     }
 
-    function finish_packing() {
+    public function finish_packing() {
 
     }
 
@@ -43,7 +43,7 @@ abstract class plugin_nsexport_packer extends DokuWiki_Plugin {
         return $conf['tmpdir'] . '/offline-' . $this->fileid . '.' . $this->ext;
     }
 
-    function get_status($key) {
+    public function get_status($key) {
         if (!$this->check_key($key)) {
             return;
         }
@@ -51,7 +51,7 @@ abstract class plugin_nsexport_packer extends DokuWiki_Plugin {
         return is_file($this->result_filename());
     }
 
-    function get_pack($key) {
+    public function get_pack($key) {
         if (!$this->check_key($key)) {
             return;
         }

@@ -14,20 +14,20 @@ require_once(DOKU_INC.'inc/template.php');
  */
 class action_plugin_nsexport_export extends DokuWiki_Action_Plugin {
 
-    var $run = false;
+    public $run = false;
 
-    function register(Doku_Event_Handler $controller) {
+    public function register(Doku_Event_Handler $controller) {
         $controller->register_hook('TPL_ACT_UNKNOWN','BEFORE',  $this, 'nsexport');
         $controller->register_hook('ACTION_ACT_PREPROCESS','BEFORE',  $this, 'act');
     }
 
-    function act(&$event , $param) {
+    public function act(&$event , $param) {
         if ($event->data != 'nsexport') return false;
         $event->preventDefault();
         $this->run = true;
     }
 
-    function nsexport(&$event, $param) {
+    public function nsexport(&$event, $param) {
         if (!$this->run) return;
 
         // stops default action handler
@@ -50,7 +50,7 @@ class action_plugin_nsexport_export extends DokuWiki_Action_Plugin {
      * Create a list of pages about to be exported within a form
      * to start the export
      */
-    function _listPages($id){
+    public function _listPages($id){
         global $ID;
 
         $pages = array();
@@ -81,7 +81,7 @@ class action_plugin_nsexport_export extends DokuWiki_Action_Plugin {
         echo '</form>';
     }
 
-    function tpl_link($return = false) {
+    public function tpl_link($return = false) {
         global $ID;
         $caption = hsc($this->getLang('link'));
         return tpl_link(wl($ID, array('do' => 'nsexport')), $caption,

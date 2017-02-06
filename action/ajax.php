@@ -22,19 +22,19 @@ require_once(DOKU_INC.'inc/HTTPClient.php');
 class action_plugin_nsexport_ajax extends DokuWiki_Action_Plugin {
 
     // temporary directory
-    var $tmp;
+    public $tmp;
 
     // ID from the export zip
-    var $fileid;
+    public $fileid;
 
-    function register(Doku_Event_Handler $controller) {
+    public function register(Doku_Event_Handler $controller) {
         $controller->register_hook('AJAX_CALL_UNKNOWN', 'BEFORE', $this, 'handle_ajax_call');
     }
 
     /**
      * route ajax calls to a function
      */
-    function handle_ajax_call(&$event, $param) {
+    public function handle_ajax_call(Doku_Event $event, $param) {
         $map = array('nsexport_start' => 'prepare_dl',
                      'nsexport_check' => 'check');
 
@@ -51,7 +51,7 @@ class action_plugin_nsexport_ajax extends DokuWiki_Action_Plugin {
      * check if the download is ready for download.
      * print 0 on not ready and 1 on ready
      */
-    function check() {
+    public function check() {
         $fid = $_REQUEST['key'];
 
         if (!is_numeric($fid)) {
@@ -70,7 +70,7 @@ class action_plugin_nsexport_ajax extends DokuWiki_Action_Plugin {
         echo '1';
     }
 
-    function getPacker() {
+    public function getPacker() {
         $packer_file = DOKU_PLUGIN . 'nsexport/packer/' . $this->getConf('usepacker') . '/packer.php';
         if (!file_exists($packer_file)) {
             return null;
@@ -86,7 +86,7 @@ class action_plugin_nsexport_ajax extends DokuWiki_Action_Plugin {
      *
      * echos a unique id to check back to the client, build the export
      */
-    function prepare_dl() {
+    public function prepare_dl() {
         global $USERINFO;
         global $ID;
         global $conf;
