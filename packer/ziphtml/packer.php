@@ -10,7 +10,7 @@ class plugin_nsexport_packer_ziphtml extends plugin_nsexport_packer {
     public function init_packing($pages) {
         global $conf;
         // early check if the zip executable is available
-        $packer = $conf['plugin']['nsexport']['packer____ziphtml____zip'];
+        $packer = $conf['plugin']['nsexport']['packer_ziphtml_zip'];
         if (!file_exists($packer) || !is_file($packer)) {
             return false;
         }

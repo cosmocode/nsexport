@@ -25,6 +25,8 @@ class action_plugin_nsexport_ajax extends DokuWiki_Action_Plugin {
      * route ajax calls to a function
      */
     public function handle_ajax_call(Doku_Event $event, $param) {
+        // we don't need this info, but we need this call to populate $conf['plugin']['nsexport']
+        $this->getConf('autoexport');
         if ($event->data === 'nsexport_start') {
             $event->preventDefault();
             $this->prepare_dl();

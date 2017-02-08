@@ -1,4 +1,4 @@
 <?php
 $conf['autoexport']                    = 0;
-$conf['packer____ziphtml____zip']      = '/usr/bin/zip';
-$conf['packer____ziphtml____compress'] = 0;
+$conf['packer_ziphtml_zip']      = '/usr/bin/zip';
+$conf['packer_ziphtml_compress'] = 0;
